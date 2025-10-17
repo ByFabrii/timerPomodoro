@@ -1,0 +1,125 @@
+.timer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.primary-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.secondary-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.control-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.control-btn:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.control-btn.primary {
+  background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+  color: #000;
+  box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+}
+
+.control-btn.primary:not(:disabled):hover {
+  box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+}
+
+.control-btn.primary.pause {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.control-btn.primary.pause:not(:disabled):hover {
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.control-btn.secondary {
+  background: linear-gradient(135deg, #333 0%, #555 100%);
+  color: #fff;
+  border: 1px solid #666;
+}
+
+.control-btn.secondary:not(:disabled):hover {
+  background: linear-gradient(135deg, #444 0%, #666 100%);
+}
+
+.control-btn.lap {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.control-btn.lap:not(:disabled):hover {
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+}
+
+.btn-icon {
+  font-size: 1.2em;
+}
+
+.keyboard-hints {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.5rem;
+}
+
+.keyboard-hints span {
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .primary-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .control-btn {
+    min-width: 200px;
+    padding: 1.2rem 2rem;
+  }
+  
+  .keyboard-hints {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
