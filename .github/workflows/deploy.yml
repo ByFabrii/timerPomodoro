@@ -43,31 +43,35 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js (cache npm)
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-
       - name: Build project (Vite)
         run: npm run build
 
-      - name: Deploy to HostGator via FTP (SamKirkland)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      # Pre-chequeo: validar que el build existe
+      - name: Verify dist exists
+        run: test -d dist
+
+      # Intento 1: FTPS explícito en puerto 21
+      - name: Deploy via FTPS (explicit :21)
+        id: deploy_ftps_explicit
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.HOSTGATOR_FTP_SERVER }}
           username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
           password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
           protocol: ftps
           port: 21
-          local-dir: dist/
-          server-dir: ${{ secrets.HOSTGATOR_REMOTE_DIR }}
+          local-dir: dist/            # requiere slash final
+          server-dir: ${{ secrets.HOSTGATOR_REMOTE_DIR }}/  # requiere slash final
           log-level: minimal
-          timeout: 300000
+          timeout: 240000
           exclude: |
             **/.git*
             **/.github/**
@@ -78,3 +82,35 @@ jobs:
             vite.config.ts
             package*.json
             tsconfig*.json
+
+      # Fallback: FTPS implícito (legacy) en puerto 990
+      - name: Deploy via FTPS (implicit :990 fallback)
+        if: steps.deploy_ftps_explicit.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.HOSTGATOR_FTP_SERVER }}
+          username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
+          password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
+          protocol: ftps-legacy
+          port: 990
+          local-dir: dist/
+          server-dir: ${{ secrets.HOSTGATOR_REMOTE_DIR }}/
+          log-level: minimal
+          timeout: 240000
+          security: loose   # tolera certificados no coincidentes del host compartido
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/src/**
+            **/*.map
+            **/.env*
+            vite.config.ts
+            package*.json
+            tsconfig*.json
+
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "🚀 Deploy a HostGator completado"
+          echo "🔗 Commit: ${{ github.sha }}"
