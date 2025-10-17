@@ -1,62 +1,98 @@
 name: Deploy Tiempo a HostGator
 
+# Eventos que disparan el workflow
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]    # solo cuando el PR se cierra (merge/close)
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+# Evita despliegues simultáneos, cancela el anterior si llega uno nuevo
 concurrency:
   group: deploy-hostgator
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    name: Build y Deploy a HostGator
+  # Job para PRs abiertos: verificación ligera de build (sin pruebas)
+  build_check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    if: github.event_name == 'pull_request' && !github.event.pull_request.merged
     steps:
-      - name: Checkout del código
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js (con cache de npm)
+      - name: Setup Node.js (cache npm)
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
 
-      - name: Instalar dependencias
+      - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      # No se ejecutan pruebas: se omite intencionalmente cualquier paso de "npm test"
+      - name: Build (verificación sin deploy)
+        run: npm run build --if-present
 
-      - name: Construir el proyecto
+  # Job principal de deployment
+  deploy:
+    runs-on: ubuntu-latest
+    # Se ejecuta si:
+    # 1) push a main, o
+    # 2) PR que fue merged, o
+    # 3) ejecución manual (workflow_dispatch)
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      github.event_name == 'workflow_dispatch'
+
+    steps:
+      # Paso 1: Descargar el código del repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Paso 2: Configurar Node con cache
+      - name: Setup Node.js (cache npm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      # Paso 3: Instalar dependencias
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      # Paso 4: Construir el proyecto (Vite genera dist/)
+      - name: Build project
         run: npm run build
 
-      - name: Exportar secretos a variables de entorno
-        shell: bash
-        run: |
-          echo "HOSTGATOR_FTP_SERVER=${{ secrets.HOSTGATOR_FTP_SERVER }}" >> $GITHUB_ENV
-          echo "HOSTGATOR_FTP_USERNAME=${{ secrets.HOSTGATOR_FTP_USERNAME }}" >> $GITHUB_ENV
-          echo "HOSTGATOR_FTP_PASSWORD=${{ secrets.HOSTGATOR_FTP_PASSWORD }}" >> $GITHUB_ENV
-          echo "HOSTGATOR_REMOTE_DIR=${{ secrets.HOSTGATOR_REMOTE_DIR }}" >> $GITHUB_ENV
-
-      - name: Instalar lftp (cliente FTPS)
+      # Paso 5: Instalar cliente FTPS
+      - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
-      - name: Transferir archivos a HostGator (FTPS, mirror -R)
+      # Paso 6: Transferir archivos a HostGator (FTPS)
+      - name: Deploy to HostGator via FTPS (mirror -R)
         shell: bash
+        env:
+          HOSTGATOR_FTP_SERVER: ${{ secrets.HOSTGATOR_FTP_SERVER }}
+          HOSTGATOR_FTP_USERNAME: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
+          HOSTGATOR_FTP_PASSWORD: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
+          HOSTGATOR_REMOTE_DIR: ${{ secrets.HOSTGATOR_REMOTE_DIR }}
         run: |
-          # Verifica que el build exista
-          if [ ! -d "dist" ]; then echo "La carpeta dist no existe"; exit 1; fi
+          # Validación: asegurar que el build existe
+          if [ ! -d "dist" ]; then
+            echo "❌ La carpeta dist no existe. ¿Falló el build?"
+            exit 1
+          fi
 
-          # Ejecuta lftp con expansión de variables (EOF sin comillas)
+          # Conexión FTPS con variables expandidas (EOF sin comillas)
           lftp -u "$HOSTGATOR_FTP_USERNAME","$HOSTGATOR_FTP_PASSWORD" "$HOSTGATOR_FTP_SERVER" << EOF
-          set net:timeout 45
-          set net:max-retries 3
+          set net:timeout 60
+          set net:max-retries 2
           set net:reconnect-interval-base 5
           set ftp:ssl-allow true
           set ftp:ssl-force true
@@ -64,25 +100,26 @@ jobs:
           set ftp:passive-mode true
           set cmd:fail-exit true
 
-          # Entra en el dir remoto; si no existe, créalo y entra
+          # Entrar/crear el directorio remoto
           cd "$HOSTGATOR_REMOTE_DIR" || (mkdir -p "$HOSTGATOR_REMOTE_DIR" && cd "$HOSTGATOR_REMOTE_DIR")
 
-          # Asegura el dir local del build
+          # Directorio local del build
           lcd dist
 
-          # Sube archivos desde dist al directorio remoto actual
+          # Subir solo archivos nuevos, sin permisos, con concurrencia moderada
           mirror -R \
-            --exclude-glob .git* \
-            --exclude-glob .github/* \
-            --parallel=3 \
             --only-newer \
             --no-perms \
+            --parallel=2 \
             . .
 
           bye
           EOF
-        env:
-          HOSTGATOR_FTP_SERVER: ${{ secrets.HOSTGATOR_FTP_SERVER }}
-          HOSTGATOR_FTP_USERNAME: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
-          HOSTGATOR_FTP_PASSWORD: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
-          HOSTGATOR_REMOTE_DIR: ${{ secrets.HOSTGATOR_REMOTE_DIR }}
+
+      # Paso 7: Notificación de éxito (visible en logs)
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "🚀 Deploy a HostGator completado correctamente"
+          echo "📅 Fecha: $(date)"
+          echo "🔗 Commit: ${{ github.sha }}"
