@@ -4,14 +4,31 @@ Un cronómetro web de alta precisión desarrollado con React, TypeScript y Zusta
 
 ## ✨ Características
 
-### Funcionalidades Principales
+### 📊 **Dual Mode Timer**
+- ⏱️ **Cronómetro ascendente** - Medición al milisegundo (0 → N)
+- 🍅 **Temporizador Pomodoro descendente** - Técnica de productividad (N → 0)
+- 🔄 **Cambio de modo dinámico** - Alterna entre cronómetro y Pomodoro
+
+### ⏱️ **Cronómetro Profesional**
 - **Cronómetro de alta precisión**: Medición en centésimas de segundo usando `performance.now()`
 - **Control intuitivo**: Botones Start/Pause/Reset con feedback visual
 - **Registro de vueltas**: Sistema completo de laps con análisis de rendimiento
+
+### 🍅 **Pomodoro Timer MVP**
+- ⏰ **Fases automáticas** - Trabajo (25min) → Descanso corto (5min) → Descanso largo (15min)
+- 📊 **Progreso visual** - Círculo de progreso con colores por fase
+- 🔢 **Contador de sesiones** - Seguimiento automático de sesiones completadas
+- 🎯 **Auto-avance** - Transición automática entre fases al llegar a 0
+- ⚙️ **Configuración personalizable** - Duración de fases ajustable
+- 📈 **Historial de sesiones** - Registro de sesiones completadas
+
+### 🎨 **Experiencia de Usuario**
 - **Modo pantalla completa**: Interfaz minimalista que muestra solo el cronómetro
 - **Persistencia**: Los laps se guardan automáticamente en localStorage
 - **Atajos de teclado**: Control completo sin mouse
 - **Diseño responsive**: Optimizado para desktop y móvil
+- 🌙 **Temas diferenciados** - Azul para cronómetro, rojo para Pomodoro
+- ♿ **Accesibilidad completa** - Compatible con lectores de pantalla
 
 ### Características Técnicas
 - **Gestión de estado**: Zustand para un estado predecible y eficiente

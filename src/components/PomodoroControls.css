@@ -1,0 +1,203 @@
+.pomodoro-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Indicador de fase */
+.phase-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.phase-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.phase-badge.work {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.phase-badge.shortBreak {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+}
+
+.phase-badge.longBreak {
+  background: linear-gradient(135deg, #27ae60, #229954);
+  color: white;
+}
+
+.phase-icon {
+  font-size: 1.2rem;
+}
+
+.phase-label {
+  font-size: 1rem;
+}
+
+.session-counter {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Controles principales */
+.primary-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.control-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.control-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.control-btn.primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.control-btn.primary.start {
+  background: linear-gradient(135deg, #27ae60, #229954);
+}
+
+.control-btn.primary.pause {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.control-btn.secondary {
+  background: var(--surface-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+/* Controles secundarios */
+.secondary-controls {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.control-btn.next-phase {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  font-size: 0.9rem;
+  min-width: 140px;
+}
+
+.control-btn.reset-pomodoro {
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  color: white;
+  font-size: 0.9rem;
+  min-width: 140px;
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+/* Atajos de teclado */
+.keyboard-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.keyboard-hints span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: var(--surface-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pomodoro-controls {
+    gap: 1rem;
+  }
+  
+  .control-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    min-width: 100px;
+  }
+  
+  .phase-badge {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  
+  .keyboard-hints {
+    gap: 0.25rem;
+  }
+  
+  .keyboard-hints span {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .primary-controls,
+  .secondary-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .control-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}

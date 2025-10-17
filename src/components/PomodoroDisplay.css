@@ -1,4 +1,4 @@
-.timer-display {
+.pomodoro-display {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -8,15 +8,7 @@
   transition: all 0.3s ease;
 }
 
-/* .timer-display.running {
-  border-color: #00ff88;
-  box-shadow: 
-    0 8px 32px rgba(0, 255, 136, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 20px rgba(0, 255, 136, 0.3);
-} */
-
-.time-text {
+.pomodoro-display .time-text {
   font-family: 'Courier New', monospace;
   font-size: clamp(3rem, 8vw, 6rem);
   font-weight: bold;
@@ -26,27 +18,12 @@
   margin-bottom: 0.5rem;
 }
 
-.timer-display.running .time-text {
-  /* color: #00ff88; */
+.pomodoro-display.running .time-text {
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
 }
 
-.status-indicator {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  opacity: 0.8;
-}
-
-.timer-display.running .status-indicator {
-  /* color: #00ff88; */
-  opacity: 1;
-}
-
 /* Estilos para modo pantalla completa */
-.app.fullscreen .timer-display {
+.app.fullscreen .pomodoro-display {
   position: fixed;
   top: 0;
   left: 0;
@@ -55,7 +32,6 @@
   margin: 0;
   border-radius: 0;
   border: none;
-  background: #000; /* Fondo negro minimalista */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -63,22 +39,24 @@
   z-index: 999;
 }
 
-.app.fullscreen .timer-display .time-text {
+.app.fullscreen .pomodoro-display .time-text {
   font-size: clamp(4rem, 15vw, 12rem);
   /* text-shadow: 0 0 30px rgba(255, 255, 255, 0.8); */
 }
 
-.app.fullscreen .timer-display .status-indicator {
-  font-size: 1.5rem;
-  margin-top: 2rem;
-  opacity: 0.6;
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 40px currentColor;
+  }
+  50% {
+    transform: scale(1.02);
+    text-shadow: 0 0 60px currentColor;
+  }
 }
 
-/* Eliminado @keyframes pulse */
-
-/* Responsive */
 @media (max-width: 768px) {
-  .timer-display {
+  .pomodoro-display {
     padding: 1.5rem;
     margin: 1rem 0;
   }
@@ -87,7 +65,7 @@
     font-size: clamp(2rem, 10vw, 4rem);
   }
   
-  .app.fullscreen .timer-display .time-text {
+  .app.fullscreen .pomodoro-display .time-text {
     font-size: clamp(3rem, 20vw, 8rem);
   }
 }

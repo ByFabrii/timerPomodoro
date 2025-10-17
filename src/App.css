@@ -1,3 +1,52 @@
+/* Variables CSS para el tema */
+:root {
+  --primary-color: #6366f1;
+  --primary-rgb: 99, 102, 241;
+  --secondary-color: #8b5cf6;
+  --accent-color: #06b6d4;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  
+  --bg-primary: #0f0f23;
+  --bg-secondary: #1a1a2e;
+  --bg-tertiary: #16213e;
+  
+  --surface-color: #1e1e3f;
+  --surface-hover: #252550;
+  --border-color: #2d2d5f;
+  --hover-color: rgba(99, 102, 241, 0.1);
+  
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  --border-radius: 12px;
+  --transition: all 0.2s ease;
+}
+
+/* Variables específicas para modo Pomodoro */
+.app.pomodoro {
+  --primary-color: #e74c3c;
+  --primary-rgb: 231, 76, 60;
+  --secondary-color: #c0392b;
+  --accent-color: #f39c12;
+  
+  --bg-primary: #2c1810;
+  --bg-secondary: #3d1f14;
+  --bg-tertiary: #4a2318;
+  
+  --surface-color: #3d2317;
+  --surface-hover: #4a2a1c;
+  --border-color: #5d3426;
+  --hover-color: rgba(231, 76, 60, 0.1);
+}
+
 /* Reset y configuración base */
 * {
   box-sizing: border-box;
