@@ -1,4 +1,4 @@
-name: Deploy Tiempo a HostGator
+name: Deploy Tiempo a HostGator.
 
 on:
   push:
