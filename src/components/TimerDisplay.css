@@ -8,13 +8,7 @@
   transition: all 0.3s ease;
 }
 
-/* .timer-display.running {
-  border-color: #00ff88;
-  box-shadow: 
-    0 8px 32px rgba(0, 255, 136, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 20px rgba(0, 255, 136, 0.3);
-} */
+/* .timer-display.running { ... } */
 
 .time-text {
   font-family: 'Courier New', monospace;
@@ -24,6 +18,7 @@
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
   letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
+  line-height: 1;
 }
 
 .timer-display.running .time-text {
@@ -31,6 +26,7 @@
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
 }
 
+/* Indicador de estado (se mantiene) */
 .status-indicator {
   font-size: 0.9rem;
   font-weight: 600;
@@ -45,7 +41,67 @@
   opacity: 1;
 }
 
-/* Estilos para modo pantalla completa */
+/* Estilos para el reloj */
+/* Estilo minimalista específico del reloj */
+/* Bloque del contador del reloj */
+.time-text.clock-text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.03em;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; /* más elegante */
+  font-weight: 800;
+  letter-spacing: 0;     /* sin separación extra */
+  text-shadow: none;     /* sin glow */
+  font-variant-numeric: tabular-nums;     /* dígitos de ancho fijo si la fuente lo soporta */
+  font-feature-settings: 'tnum' 1;        /* respaldo para browsers/fuentes */
+}
+
+.timer-display.running .time-text.clock-text {
+  text-shadow: none;     /* asegura sin sombra también al correr */
+}
+
+.clock-text .hours,
+.clock-text .colon {
+  color: #ffffff;
+}
+
+.clock-text .colon {
+  margin: 0 0.04em;
+  font-weight: 600;
+}
+
+.clock-text .minutes {
+  color: #9aa0a6; /* gris suave */
+}
+
+.clock-text .seconds {
+  color: #ffffff;
+  font-size: 0.35em;       /* más pequeño que los minutos */
+  margin-left: 0.25em;     /* colocado junto a los minutos */
+  transform: translateY(-0.2em); /* alineación visual */
+  display: inline-block;
+  width: 2ch;              /* ancho fijo para 2 dígitos de segundos */
+  text-align: left;
+}
+
+/* Subtextos: AM/PM y día comparten tipografía */
+.ampm,
+.day, .tz-label {
+  font-size: clamp(0.9rem, 3vw, 1.2rem);
+  color: #9aa0a6;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.day {
+  margin-top: 0.6rem;    /* día primero */
+}
+
+.ampm {
+  margin-top: 0.25rem;   /* luego AM/PM */
+}
+
+/* Modo pantalla completa fondo negro minimalista */
 .app.fullscreen .timer-display {
   position: fixed;
   top: 0;
@@ -55,7 +111,7 @@
   margin: 0;
   border-radius: 0;
   border: none;
-  background: #000; /* Fondo negro minimalista */
+  background: #000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -65,7 +121,6 @@
 
 .app.fullscreen .timer-display .time-text {
   font-size: clamp(4rem, 15vw, 12rem);
-  /* text-shadow: 0 0 30px rgba(255, 255, 255, 0.8); */
 }
 
 .app.fullscreen .timer-display .status-indicator {
@@ -73,8 +128,6 @@
   margin-top: 2rem;
   opacity: 0.6;
 }
-
-/* Eliminado @keyframes pulse */
 
 /* Responsive */
 @media (max-width: 768px) {

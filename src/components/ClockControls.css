@@ -1,0 +1,32 @@
+.clock-controls {
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.clock-zones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.clock-zone-btn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.clock-zone-btn:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.clock-zone-btn.active {
+  border-color: #00ff88;
+  color: #00ff88;
+}

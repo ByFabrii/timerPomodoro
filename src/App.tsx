@@ -7,6 +7,8 @@ import { PomodoroConfigComponent } from './components/PomodoroConfig';
 import { LapsList } from './components/LapsList';
 import { FullscreenButton } from './components/FullscreenButton';
 import { ModeSelector } from './components/ModeSelector';
+import { ClockDisplay } from './components/ClockDisplay';
+import { ClockControls } from './components/ClockControls';
 import './App.css';
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
     nextPomodoroPhase,
     resetPomodoro,
     setPomodoroConfig,
+    clockTimezone,
+    setClockTimezone,
   } = useTimer();
 
   return (
@@ -42,12 +46,14 @@ function App() {
         <header className="app-header">
           <h1 className="app-title">
             <span className="title-icon">⏱️</span>
-            {mode === 'stopwatch' ? 'Cronómetro Pro' : 'Pomodoro Timer'}
+            {mode === 'stopwatch' ? 'Cronómetro Pro' : mode === 'pomodoro' ? 'Pomodoro Timer' : 'Reloj'}
           </h1>
           <p className="app-subtitle">
             {mode === 'stopwatch' 
               ? 'Cronómetro de alta precisión con registro de vueltas'
-              : 'Técnica Pomodoro para máxima productividad'
+              : mode === 'pomodoro'
+                ? 'Técnica Pomodoro para máxima productividad'
+                : 'Reloj en tiempo real (12 h) zona Ciudad de México'
             }
           </p>
         </header>
@@ -64,13 +70,15 @@ function App() {
 
         {mode === 'stopwatch' ? (
           <TimerDisplay time={time} isRunning={isRunning} />
-        ) : (
+        ) : mode === 'pomodoro' ? (
           <PomodoroDisplay
             time={time}
             targetTime={targetTime}
             isRunning={isRunning}
             currentPhase={currentPhase}
           />
+        ) : (
+          <ClockDisplay timezone={clockTimezone} />
         )}
         
         {!isFullscreen && (
@@ -84,7 +92,7 @@ function App() {
                 onReset={reset}
                 onLap={addLap}
               />
-            ) : (
+            ) : mode === 'pomodoro' ? (
               <>
                 <PomodoroControls
                   isRunning={isRunning}
@@ -106,6 +114,11 @@ function App() {
                   />
                 )}
               </>
+            ) : (
+              <ClockControls
+                currentTimezone={clockTimezone}
+                onChange={setClockTimezone}
+              />
             )}
             
             {mode === 'stopwatch' && <LapsList laps={laps} />}

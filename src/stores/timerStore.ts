@@ -29,11 +29,17 @@ const useTimerStore = create<TimerStore>()(
       targetTime: DEFAULT_POMODORO_CONFIG.workDuration,
       pomodoroSessions: [],
 
+      // Zona horaria del reloj (persistente)
+      clockTimezone: 'America/Mexico_City',
+
       // Acciones comunes
       start: () => {
         const state = get();
         const now = performance.now();
-        
+        if (state.mode === 'clock') {
+          // No aplica start/pause/reset en modo reloj
+          return;
+        }
         if (state.mode === 'stopwatch') {
           // Lógica original del cronómetro (ascendente)
           set((state) => ({
@@ -52,11 +58,23 @@ const useTimerStore = create<TimerStore>()(
       },
 
       pause: () => {
+        const state = get();
+        if (state.mode === 'clock') {
+          return;
+        }
         set({ isRunning: false });
       },
 
       reset: () => {
         const state = get();
+        if (state.mode === 'clock') {
+          set({
+            isRunning: false,
+            startTime: null,
+            isFullscreen: false,
+          });
+          return;
+        }
         if (state.mode === 'stopwatch') {
           // Reset del cronómetro
           set({
@@ -131,10 +149,10 @@ const useTimerStore = create<TimerStore>()(
         const state = get();
         set({
           mode,
-          time: mode === 'stopwatch' ? 0 : state.targetTime,
+          time: mode === 'stopwatch' ? 0 : mode === 'pomodoro' ? state.targetTime : 0,
           isRunning: false,
           startTime: null,
-          laps: mode === 'stopwatch' ? state.laps : [],
+          laps: mode === 'pomodoro' ? [] : state.laps,
           lastLapTime: 0,
         });
       },
@@ -230,6 +248,11 @@ const useTimerStore = create<TimerStore>()(
           pomodoroSessions: [],
         });
       },
+
+      // Nueva acción: actualizar zona horaria del reloj
+      setClockTimezone: (tz: string) => {
+        set({ clockTimezone: tz });
+      },
     }),
     {
       name: 'timer-storage',
@@ -239,7 +262,7 @@ const useTimerStore = create<TimerStore>()(
         pomodoroConfig: state.pomodoroConfig,
         sessionCount: state.sessionCount,
         pomodoroSessions: state.pomodoroSessions,
-        // No persistimos el estado de ejecución para evitar bugs
+        clockTimezone: state.clockTimezone,
       }),
     }
   )

@@ -42,6 +42,19 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
           <span className="mode-icon">🍅</span>
           <span className="mode-label">Pomodoro</span>
         </button>
+
+        <button
+          className={clsx('mode-tab', {
+            'active': currentMode === 'clock',
+            'disabled': disabled,
+          })}
+          onClick={() => onModeChange('clock')}
+          disabled={disabled}
+          aria-label="Modo Reloj"
+        >
+          <span className="mode-icon">🕒</span>
+          <span className="mode-label">Reloj</span>
+        </button>
       </div>
       
       {disabled && (

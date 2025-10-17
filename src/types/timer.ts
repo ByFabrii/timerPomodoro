@@ -5,8 +5,8 @@ export interface Lap {
   timestamp: Date;
 }
 
-// Tipos para Pomodoro
-export type TimerMode = 'stopwatch' | 'pomodoro';
+// Tipos para Pomodoro y reloj
+export type TimerMode = 'stopwatch' | 'pomodoro' | 'clock';
 export type PomodoroPhase = 'work' | 'shortBreak' | 'longBreak';
 
 export interface PomodoroConfig {
@@ -32,13 +32,15 @@ export interface TimerState {
   lastLapTime: number;
   isFullscreen: boolean;
   
-  // Estado específico de Pomodoro
+  // Estado específico de Pomodoro y modo
   mode: TimerMode;
   pomodoroConfig: PomodoroConfig;
   currentPhase: PomodoroPhase;
   sessionCount: number; // contador de sesiones de trabajo completadas
   targetTime: number; // tiempo objetivo para el temporizador descendente
   pomodoroSessions: PomodoroSession[];
+  // Nuevo: zona horaria del reloj
+  clockTimezone: string;
 }
 
 export interface TimerActions {
@@ -50,11 +52,13 @@ export interface TimerActions {
   tick: () => void;
   toggleFullscreen: () => void;
   
-  // Acciones específicas de Pomodoro
+  // Acciones específicas
   setMode: (mode: TimerMode) => void;
   setPomodoroConfig: (config: Partial<PomodoroConfig>) => void;
   nextPomodoroPhase: () => void;
   resetPomodoro: () => void;
+  // Nuevo: actualizar zona horaria del reloj
+  setClockTimezone: (tz: string) => void;
 }
 
 export type TimerStore = TimerState & TimerActions;
