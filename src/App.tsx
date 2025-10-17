@@ -8,6 +8,7 @@ import { LapsList } from './components/LapsList';
 import { FullscreenButton } from './components/FullscreenButton';
 import { ModeSelector } from './components/ModeSelector';
 import { ClockDisplay } from './components/ClockDisplay';
+import { SharedHeader } from './components/SharedHeader';
 import { ClockControls } from './components/ClockControls';
 import './App.css';
 
@@ -43,20 +44,8 @@ function App() {
       />
 
       {!isFullscreen && (
-        <header className="app-header">
-          <h1 className="app-title">
-            <span className="title-icon">⏱️</span>
-            {mode === 'stopwatch' ? 'Cronómetro Pro' : mode === 'pomodoro' ? 'Pomodoro Timer' : 'Reloj'}
-          </h1>
-          <p className="app-subtitle">
-            {mode === 'stopwatch' 
-              ? 'Cronómetro de alta precisión con registro de vueltas'
-              : mode === 'pomodoro'
-                ? 'Técnica Pomodoro para máxima productividad'
-                : 'Reloj en tiempo real (12 h) zona Ciudad de México'
-            }
-          </p>
-        </header>
+        // Reemplazo de header anterior por el compartido
+        <SharedHeader mode={mode} />
       )}
 
       <main className="app-main">

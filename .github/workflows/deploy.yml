@@ -1,0 +1,72 @@
+name: Deploy Tiempo a HostGator
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-hostgator
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build y Deploy a HostGator
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js (con cache de npm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci --no-audit --no-fund
+
+      # No se ejecutan pruebas: se omite intencionalmente cualquier paso de "npm test"
+
+      - name: Construir el proyecto
+        run: npm run build
+
+      - name: Exportar secretos a variables de entorno
+        shell: bash
+        run: |
+          echo "HOSTGATOR_FTP_SERVER=${{ secrets.HOSTGATOR_FTP_SERVER }}" >> $GITHUB_ENV
+          echo "HOSTGATOR_FTP_USERNAME=${{ secrets.HOSTGATOR_FTP_USERNAME }}" >> $GITHUB_ENV
+          echo "HOSTGATOR_FTP_PASSWORD=${{ secrets.HOSTGATOR_FTP_PASSWORD }}" >> $GITHUB_ENV
+          echo "HOSTGATOR_REMOTE_DIR=${{ secrets.HOSTGATOR_REMOTE_DIR }}" >> $GITHUB_ENV
+
+      - name: Instalar lftp (cliente FTPS)
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Transferir archivos a HostGator (FTPS, mirror -R)
+        shell: bash
+        run: |
+          lftp -u "$HOSTGATOR_FTP_USERNAME","$HOSTGATOR_FTP_PASSWORD" "$HOSTGATOR_FTP_SERVER" << 'EOF'
+          set net:timeout 20
+          set net:max-retries 3
+          set net:reconnect-interval-base 5
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ftp:passive-mode true
+          set cmd:fail-exit true
+          mkdir -p "$HOSTGATOR_REMOTE_DIR"
+          mirror -R \
+            --exclude-glob .git* \
+            --exclude-glob .github/* \
+            --exclude-glob node_modules/* \
+            --exclude-glob src/* \
+            --exclude-glob *.map \
+            --parallel=4 \
+            --only-newer \
+            dist "$HOSTGATOR_REMOTE_DIR"
+          bye
+          EOF

@@ -110,11 +110,13 @@
 /* Main content */
 .app-main {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem 0;
+  display: grid;            /* grid para centrar y espaciar */
+  place-items: center;      /* centra horizontal y verticalmente cada elemento */
+  align-content: center;    /* centra el conjunto dentro del alto disponible */
+  justify-items: center;
+  row-gap: 1.5rem;          /* espaciado uniforme entre elementos */
+  min-height: 70vh;         /* asegura centrado visible en la pantalla */
+  padding: 0;               /* evita empuje hacia arriba */
   width: 100%;
   max-width: 800px;
   margin: 0 auto;

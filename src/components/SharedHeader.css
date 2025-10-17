@@ -1,0 +1,53 @@
+.shared-header {
+  width: 10%;
+  /* display: grid; */
+  grid-template-columns: auto; /* solo la marca, sin meta a la derecha */
+  /* align-items: center; */
+  gap: 0rem;
+  padding: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand {
+  display: inline-flex;
+  gap: 0.6rem;
+}
+
+.brand-logo {
+  height: 100px;       /* tamaño sobrio como en la referencia */
+  width: auto;
+  object-fit: contain; /* respeta proporciones del PNG */
+  border-radius: 0;    /* evita recortes del logo tipográfico */
+  opacity: 1;          /* nitidez del logo */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.brand-name {
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 700;
+  color: #ffffff;
+  align-content: center;
+  letter-spacing: 0.01em;
+}
+
+/* Se eliminan estilos de brand-meta por no usarse */
+.brand-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-line {
+  color: #9aa0a6;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+}
+
+.mode-pill {
+  color: #e2e8f0;
+  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+  padding: 0.35rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
