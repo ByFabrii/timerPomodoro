@@ -41,16 +41,13 @@ const useTimerStore = create<TimerStore>()(
           return;
         }
         if (state.mode === 'stopwatch') {
-          // Lógica original del cronómetro (ascendente)
           set((state) => ({
             isRunning: true,
             startTime: state.startTime ? now - state.time : now,
           }));
         } else {
-          // Lógica del Pomodoro (descendente)
-          // Para el countdown: startTime debe ser ajustado para que elapsed = targetTime - currentTime
           const elapsedTime = state.targetTime - state.time;
-          set((state) => ({
+          set(() => ({
             isRunning: true,
             startTime: now - elapsedTime,
           }));

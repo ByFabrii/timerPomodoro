@@ -6,7 +6,6 @@ describe('Fullscreen en modo Reloj', () => {
     const store = useTimerStore.getState();
 
     store.setMode('clock');
-    const initial = { ...store };
 
     store.toggleFullscreen();
     const after = useTimerStore.getState();

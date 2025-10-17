@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import useTimerStore from '../stores/timerStore';
-import type { PomodoroPhase } from '../types/timer';
+
 
 // Mock de performance.now y crypto.randomUUID
 const mockPerformanceNow = vi.fn();
