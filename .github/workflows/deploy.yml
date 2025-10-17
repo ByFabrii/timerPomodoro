@@ -6,120 +6,75 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-    types: [ closed ]    # solo cuando el PR se cierra (merge/close)
+    types: [ closed ]
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# Evita despliegues simultáneos, cancela el anterior si llega uno nuevo
 concurrency:
   group: deploy-hostgator
   cancel-in-progress: true
 
 jobs:
-  # Job para PRs abiertos: verificación ligera de build (sin pruebas)
   build_check:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && !github.event.pull_request.merged
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js (cache npm)
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-
       - name: Build (verificación sin deploy)
         run: npm run build --if-present
 
-  # Job principal de deployment
   deploy:
     runs-on: ubuntu-latest
-    # Se ejecuta si:
-    # 1) push a main, o
-    # 2) PR que fue merged, o
-    # 3) ejecución manual (workflow_dispatch)
+    timeout-minutes: 15
     if: >
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
       github.event_name == 'workflow_dispatch'
-
     steps:
-      # Paso 1: Descargar el código del repositorio
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Paso 2: Configurar Node con cache
       - name: Setup Node.js (cache npm)
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
 
-      # Paso 3: Instalar dependencias
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      # Paso 4: Construir el proyecto (Vite genera dist/)
-      - name: Build project
+      - name: Build project (Vite)
         run: npm run build
 
-      # Paso 5: Instalar cliente FTPS
-      - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
-
-      # Paso 6: Transferir archivos a HostGator (FTPS)
-      - name: Deploy to HostGator via FTPS (mirror -R)
-        shell: bash
-        env:
-          HOSTGATOR_FTP_SERVER: ${{ secrets.HOSTGATOR_FTP_SERVER }}
-          HOSTGATOR_FTP_USERNAME: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
-          HOSTGATOR_FTP_PASSWORD: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
-          HOSTGATOR_REMOTE_DIR: ${{ secrets.HOSTGATOR_REMOTE_DIR }}
-        run: |
-          # Validación: asegurar que el build existe
-          if [ ! -d "dist" ]; then
-            echo "❌ La carpeta dist no existe. ¿Falló el build?"
-            exit 1
-          fi
-
-          # Conexión FTPS con variables expandidas (EOF sin comillas)
-          lftp -u "$HOSTGATOR_FTP_USERNAME","$HOSTGATOR_FTP_PASSWORD" "$HOSTGATOR_FTP_SERVER" << EOF
-          set net:timeout 60
-          set net:max-retries 2
-          set net:reconnect-interval-base 5
-          set ftp:ssl-allow true
-          set ftp:ssl-force true
-          set ftp:ssl-protect-data true
-          set ftp:passive-mode true
-          set cmd:fail-exit true
-
-          # Entrar/crear el directorio remoto
-          cd "$HOSTGATOR_REMOTE_DIR" || (mkdir -p "$HOSTGATOR_REMOTE_DIR" && cd "$HOSTGATOR_REMOTE_DIR")
-
-          # Directorio local del build
-          lcd dist
-
-          # Subir solo archivos nuevos, sin permisos, con concurrencia moderada
-          mirror -R \
-            --only-newer \
-            --no-perms \
-            --parallel=2 \
-            . .
-
-          bye
-          EOF
-
-      # Paso 7: Notificación de éxito (visible en logs)
-      - name: Deployment summary
-        if: success()
-        run: |
-          echo "🚀 Deploy a HostGator completado correctamente"
-          echo "📅 Fecha: $(date)"
-          echo "🔗 Commit: ${{ github.sha }}"
+      - name: Deploy to HostGator via FTP (SamKirkland)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.HOSTGATOR_FTP_SERVER }}
+          username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
+          password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: dist
+          server-dir: ${{ secrets.HOSTGATOR_REMOTE_DIR }}
+          log-level: minimal
+          timeout: 300000
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/src/**
+            **/*.map
+            **/.env*
+            vite.config.ts
+            package*.json
+            tsconfig*.json
