@@ -50,23 +50,40 @@ jobs:
       - name: Transferir archivos a HostGator (FTPS, mirror -R)
         shell: bash
         run: |
-          lftp -u "$HOSTGATOR_FTP_USERNAME","$HOSTGATOR_FTP_PASSWORD" "$HOSTGATOR_FTP_SERVER" << 'EOF'
-          set net:timeout 20
-          set net:max-retries 3
+          # Verifica que el build exista
+          if [ ! -d "dist" ]; then echo "La carpeta dist no existe"; exit 1; fi
+
+          # Ejecuta lftp con expansión de variables (EOF sin comillas)
+          lftp -u "$HOSTGATOR_FTP_USERNAME","$HOSTGATOR_FTP_PASSWORD" "$HOSTGATOR_FTP_SERVER" << EOF
+          set net:timeout 30
+          set net:max-retries 2
           set net:reconnect-interval-base 5
+          set ftp:ssl-allow true
           set ftp:ssl-force true
           set ftp:ssl-protect-data true
           set ftp:passive-mode true
           set cmd:fail-exit true
-          mkdir -p "$HOSTGATOR_REMOTE_DIR"
+          set ftp:prefer-mlsd true
+
+          # Entra en el dir remoto; si no existe, créalo y entra
+          cd "$HOSTGATOR_REMOTE_DIR" || (mkdir -p "$HOSTGATOR_REMOTE_DIR" && cd "$HOSTGATOR_REMOTE_DIR")
+
+          # Asegura el dir local del build
+          lcd dist
+
+          # Sube archivos desde dist al directorio remoto actual
           mirror -R \
             --exclude-glob .git* \
             --exclude-glob .github/* \
-            --exclude-glob node_modules/* \
-            --exclude-glob src/* \
-            --exclude-glob *.map \
-            --parallel=4 \
+            --parallel=3 \
             --only-newer \
-            dist "$HOSTGATOR_REMOTE_DIR"
+            --no-perms \
+            . .
+
           bye
           EOF
+        env:
+          HOSTGATOR_FTP_SERVER: ${{ secrets.HOSTGATOR_FTP_SERVER }}
+          HOSTGATOR_FTP_USERNAME: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
+          HOSTGATOR_FTP_PASSWORD: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
+          HOSTGATOR_REMOTE_DIR: ${{ secrets.HOSTGATOR_REMOTE_DIR }}
