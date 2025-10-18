@@ -55,7 +55,15 @@ jobs:
           echo "Tamaño total del directorio dist:"
           du -sh dist/
           
-      # Deploy directo usando servidor HostGator (no Cloudflare)
+      # Verificar credenciales antes del deploy
+      - name: Verify FTP credentials
+        run: |
+          echo "🔐 Verificando configuración FTP..."
+          echo "Usuario FTP esperado: tiempo@tiempo.fabrizziodev.com"
+          echo "Servidor: gator4171.hostgator.com"
+          echo "Directorio destino: /home3/fabrizz1/tiempo.fabrizziodev.com/"
+          
+      # Deploy directo usando servidor HostGator
       - name: Deploy to HostGator via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
@@ -66,7 +74,7 @@ jobs:
           port: 21
           local-dir: dist/
           server-dir: /home3/fabrizz1/tiempo.fabrizziodev.com/
-          timeout: 60000
+          timeout: 120000
           log-level: verbose
           exclude: |
             **/.git*
@@ -82,6 +90,8 @@ jobs:
             tsconfig*.json
             README.md
             .gitignore
+            eslint.config.js
+            vitest.config.ts
             
       - name: Deployment Summary
         if: success()
