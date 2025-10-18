@@ -1,0 +1,109 @@
+name: Deploy to HostGator
+
+# Cuándo se ejecuta esta action
+on:
+  # Se ejecuta cuando hay push directo a main
+  push:
+    branches: [ main ]
+    
+  # Se ejecuta cuando se hace merge de un Pull Request a main
+  pull_request:
+    branches: [ main ]
+    types: [ closed ]  # Solo cuando el PR se cierra (merge o close)
+    
+  # También permite ejecutarla manualmente
+  workflow_dispatch:
+
+jobs:
+  # Job que se ejecuta solo para Pull Requests (para testing)
+  test:
+    runs-on: ubuntu-latest
+    # Solo se ejecuta si es un PR y NO está merged aún
+    if: github.event_name == 'pull_request' && !github.event.pull_request.merged
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
+        
+    - name: Install Composer dependencies
+      run: |
+        if [ -f composer.json ]; then
+          composer install --optimize-autoloader
+        fi
+        
+    - name: Validate PHP syntax
+      run: |
+        find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+
+  # Job principal de deployment
+  deploy:
+    runs-on: ubuntu-latest
+    # Se ejecuta solo si:
+    # 1. Es push directo a main, O
+    # 2. Es un PR que fue merged a main, O  
+    # 3. Es ejecución manual
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      github.event_name == 'workflow_dispatch'
+    
+    steps:
+    # Paso 1: Descargar el código del repositorio
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    # Paso 2: Configurar PHP
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
+        
+    # Paso 3: Instalar dependencias de Composer
+    - name: Install Composer dependencies
+      run: |
+        if [ -f composer.json ]; then
+          composer install --no-dev --optimize-autoloader
+        fi
+        
+    # Paso 4: Crear directorio de archivos a subir
+    - name: Prepare files for upload
+      run: |
+        mkdir -p deploy-files
+        rsync -av --exclude='.git' \
+                  --exclude='.github' \
+                  --exclude='node_modules' \
+                  --exclude='.env.local' \
+                  --exclude='*.log' \
+                  --exclude='deploy-files' \
+                  ./ deploy-files/
+                  
+    # Paso 5: Subir archivos por FTP a HostGator
+    - name: Deploy to HostGator via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./deploy-files/
+        server-dir: /
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.env.local
+          **/*.log
+          
+    # Paso 6: Notificación de éxito
+    - name: Deployment Success Notification
+      if: success()
+      run: |
+        echo "🚀 Deployment to HostGator completed successfully!"
+        echo "📅 Deployed at: $(date)"
+        echo "🔗 Commit: ${{ github.sha }}"

@@ -65,17 +65,13 @@ jobs:
           
       # Deploy directo usando servidor HostGator
       - name: Deploy to HostGator via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.HOSTGATOR_FTP_SERVER }}
-          username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
-          password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: /
-          timeout: 120000
-          log-level: verbose
           exclude: |
             **/.git*
             **/.github/**
