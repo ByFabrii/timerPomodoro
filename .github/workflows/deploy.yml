@@ -65,29 +65,15 @@ jobs:
           
       # Deploy directo usando servidor HostGator
       - name: Deploy to HostGator via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: /
-          exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            **/src/**
-            **/*.map
-            **/.env*
-            **/test/**
-            **/*.test.*
-            vite.config.ts
-            package*.json
-            tsconfig*.json
-            README.md
-            .gitignore
-            eslint.config.js
-            vitest.config.ts
+          local_path: './dist/*'
+          remote_path: '/home3/fabrizz1/tiempo.fabrizziodev.com/'
+          port: 21
+          ssh_private_key: null
             
       - name: Deployment Summary
         if: success()
