@@ -64,16 +64,32 @@ jobs:
           echo "Directorio destino: /home3/fabrizz1/tiempo.fabrizziodev.com/"
           
       # Deploy directo usando servidor HostGator
-      - name: Deploy to HostGator via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      - name: Deploy to HostGator via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          ssh_private_key: ${{ secrets.FTP_PASSWORD }}
-          local_path: './dist/*'
-          remote_path: '/public_html/'
-          port: 22
+          local-dir: ./dist/
+          server-dir: /
+          protocol: sftp
+          port: 21
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/src/**
+            **/*.map
+            **/.env*
+            **/test/**
+            **/*.test.*
+            vite.config.ts
+            package*.json
+            tsconfig*.json
+            README.md
+            .gitignore
+            eslint.config.js
+            vitest.config.ts
             
       - name: Deployment Summary
         if: success()
