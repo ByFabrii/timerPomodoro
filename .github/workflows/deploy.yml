@@ -72,7 +72,7 @@ jobs:
           password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
           protocol: ftp
           port: 21
-          local-dir: ./deploy-files/
+          local-dir: ./dist/
           server-dir: /
           timeout: 120000
           log-level: verbose
