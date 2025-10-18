@@ -60,14 +60,14 @@ jobs:
         run: |
           echo "🔐 Verificando configuración FTP..."
           echo "Usuario FTP esperado: tiempo@tiempo.fabrizziodev.com"
-          echo "Servidor: gator4171.hostgator.com"
+          echo "Servidor: ftp.fabrizziodev.com"
           echo "Directorio destino: /home3/fabrizz1/tiempo.fabrizziodev.com/"
           
       # Deploy directo usando servidor HostGator
       - name: Deploy to HostGator via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: gator4171.hostgator.com
+          server: ftp.fabrizziodev.com
           username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
           password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
           protocol: ftp
