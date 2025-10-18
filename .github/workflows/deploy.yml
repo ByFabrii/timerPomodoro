@@ -55,20 +55,18 @@ jobs:
           echo "Tamaño total del directorio dist:"
           du -sh dist/
           
-      # Intento principal: FTP estándar (más compatible con HostGator)
+      # Deploy directo usando servidor HostGator (no Cloudflare)
       - name: Deploy to HostGator via FTP
-        id: deploy_ftp
-        continue-on-error: true
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: ${{ secrets.HOSTGATOR_FTP_SERVER }}
+          server: gator4171.hostgator.com
           username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
           password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
           protocol: ftp
           port: 21
           local-dir: dist/
           server-dir: /home3/fabrizz1/tiempo.fabrizziodev.com/
-          timeout: 600000
+          timeout: 60000
           log-level: verbose
           exclude: |
             **/.git*
@@ -82,34 +80,8 @@ jobs:
             vite.config.ts
             package*.json
             tsconfig*.json
-            
-      # Fallback: FTPS si FTP falla
-      - name: Deploy to HostGator via FTPS (fallback)
-        if: steps.deploy_ftp.outcome == 'failure'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.HOSTGATOR_FTP_SERVER }}
-          username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
-          password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          local-dir: dist/
-          server-dir: /home3/fabrizz1/tiempo.fabrizziodev.com/
-          timeout: 600000
-          log-level: verbose
-          security: loose
-          exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            **/src/**
-            **/*.map
-            **/.env*
-            **/test/**
-            **/*.test.*
-            vite.config.ts
-            package*.json
-            tsconfig*.json
+            README.md
+            .gitignore
             
       - name: Deployment Summary
         if: success()
